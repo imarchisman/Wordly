@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import WordGrid from './WordGrid';
-import { wordList } from './words';  // Import word list
+import VirtualKeyboard from './VirtualKeyboard'; // Import the virtual keyboard
+import { wordList } from './words';
 
 // Function to get the word of the day
 const getWordOfTheDay = () => {
@@ -26,7 +27,7 @@ function App() {
   const [word, setWord] = useState('');
   const [guesses, setGuesses] = useState(['', '', '', '', '', '']);
   const [currentGuess, setCurrentGuess] = useState('');
-  const [revealedGuesses, setRevealedGuesses] = useState(['', '', '', '', '', '']); // Holds guesses that are revealed with colors
+  const [revealedGuesses, setRevealedGuesses] = useState(['', '', '', '', '', '']); // Holds guesses with feedback after submission
   const [gameOver, setGameOver] = useState(false);
   const [error, setError] = useState('');
 
@@ -34,28 +35,19 @@ function App() {
     setWord(getWordOfTheDay()); // Set word on initial load
   }, []);
 
-  useEffect(() => {
-    const handleKeyPress = async (event) => {
-      if (gameOver) return;
+  const handleKeyPress = async (key) => {
+    if (gameOver) return;
 
-      const { key } = event;
-      if (key === 'Enter') {
-        if (currentGuess.length === 5) {
-          await handleGuess(); // Handle guess when Enter is pressed
-        }
-      } else if (key === 'Backspace') {
-        setCurrentGuess(currentGuess.slice(0, -1)); // Remove last character
-      } else if (/^[a-zA-Z]$/.test(key) && currentGuess.length < 5) {
-        setCurrentGuess(currentGuess + key.toLowerCase()); // Add new character
+    if (key === 'Enter') {
+      if (currentGuess.length === 5) {
+        await handleGuess(); // Handle guess when Enter is pressed
       }
-    };
-
-    window.addEventListener('keydown', handleKeyPress);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [currentGuess, gameOver]);
+    } else if (key === 'Backspace') {
+      setCurrentGuess(currentGuess.slice(0, -1)); // Remove last character
+    } else if (/^[a-zA-Z]$/.test(key) && currentGuess.length < 5) {
+      setCurrentGuess(currentGuess + key.toLowerCase()); // Add new character
+    }
+  };
 
   const handleGuess = async () => {
     if (currentGuess.length === 5 && guesses.includes('')) {
@@ -91,6 +83,7 @@ function App() {
       <h1 className="text-4xl font-bold mb-5">Wordly Game</h1>
       {error && <p className="text-red-500">{error}</p>} {/* Display error */}
       <WordGrid guesses={revealedGuesses} currentGuess={currentGuess} word={word} />
+      <VirtualKeyboard onKeyPress={handleKeyPress} /> {/* Add virtual keyboard */}
     </div>
   );
 }
