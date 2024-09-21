@@ -70,7 +70,7 @@ function App() {
         alert('Congratulations! You guessed the word.');
       } else if (!newGuesses.includes('')) {
         setGameOver(true);
-        alert('Game Over! The word was ' + word);
+        alert('Game Over! Try Again');
       }
 
       setCurrentGuess('');
